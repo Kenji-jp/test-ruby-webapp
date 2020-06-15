@@ -5,22 +5,22 @@ jobs:
       - image: circleci/ruby:2.6.3
     working_directory: ~/repo
     steps:
-    - checkout
-    - run:
-        name: bundle update
-        command: gem install bundler:2.0.2
-    - restore_cache:
-        keys:
-          - v1-dependencies-{{ checksum "Gemfile.lock" }}
-          - v1-dependencies-
-    - run:
-        name: install dependencies
-        command: |
-          bundle install --jobs=4 --retry=3 --path vendor/bundle
-    - save_cache:
-        paths:
-          - ./vendor/bundle
-        key: v1-dependencies-{{ checksum "Gemfile.lock" }}
+      - checkout
+      - run: # circleci の ruby のコンテナの bundler のバージョンは古いので update する
+          name: bundle update
+          command: gem install bundler:2.0.2
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "Gemfile.lock" }}
+            - v1-dependencies-
+      - run:
+          name: install dependencies
+          command: |
+            bundle install --jobs=4 --retry=3 --path vendor/bundle
+      - save_cache:
+          paths:
+            - ./vendor/bundle
+          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
   build_image:
     docker:
       - image: docker:18.09.0
@@ -49,10 +49,10 @@ workflows:
   version: 2
   test:
     jobs:
-      - build
-      - build_image:
-          requires:
-            - build
-          filters:
-            branches:
-              only: master
+    - build
+    - build_image:
+        requires:
+          - build
+        filters:
+          branches:
+            only: master
